@@ -23,5 +23,6 @@ async def call_api(prompt: str, options: dict, context: dict) -> dict:
                 return result
             else:
                 error_text = await response.text()
-                raise Exception(
-                    f"API call failed with status {response.status}: {error_text}")
+                return {
+                    "error": f"Request failed with status {response.status}: {error_text}"
+                }

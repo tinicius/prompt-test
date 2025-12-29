@@ -64,30 +64,37 @@ def create_promptfoo_config(df, output_file):
         input_clean = clean_text(row['input'])
         output_clean = clean_text(row['output'])
 
+        filename = row['filename']
+
+        asserts = [
+            {
+                "type": "llm-rubric",
+                "value": f"The response must be semantically similar to this reference:\n\n{output_clean}"
+            },
+        ]
+
+        if filename:
+            asserts.append(
+                {
+                    "type": "icontains",
+                    "value": filename
+                }
+            )
+
         test_case = {
             "vars": {
                 "input": input_clean
             },
-            "assert": [
-                {
-                    "type": "llm-rubric",
-                    "value": f"The response must be semantically similar to this reference:\n\n{output_clean}"
-                },
-                # Optional: Also ensure specific keywords exist (like function names)
-                # You can uncomment this if you want to strictly enforce specific function names
-                # {
-                #     "type": "icontains",
-                #     "value": "CANCreateFiFo"
-                # }
-            ]
+            "assert": asserts
         }
+
         tests.append(test_case)
 
     config = {
         "description": "Test set",
         "prompts": ["{{input}}"],
         "providers": [
-            "openai:gpt-4o",
+            # "openai:gpt-4o",
             {"id": "file://echo_provider.py"}
         ],
         "tests": tests
